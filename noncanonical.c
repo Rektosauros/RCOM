@@ -93,92 +93,79 @@ int main(int argc, char** argv)
 			case 0:
 				if(chRead==F)
 					state++;
-				printf("1st Flag received");
+				printf("1st Flag received\n");
 				break;
 			case 1:
 				if(chRead==EM_ADDR){
 					state++;
-					printf("ADDRESS received");
+					printf("ADDRESS received\n");
 				}
 				else if(chRead!=F){
 					state=0;
-					printf("Back to state 0");
+					printf("Back to state 0\n");
 				}					
 				break;
 			case 2:
 				if(chRead==EM_CONTROL){
 					state++;
-					printf("Control received");	
+					printf("Control received\n");	
 				}
 				else if(chRead==F){
 					state--;
-					printf("1st Flag received");
+					printf("1st Flag received\n");
 				}
 				else{
 					state=0;
-					printf("Back to state 0");
+					printf("Back to state 0\n");
 				}
 				
 				break;
 			case 3:
 				if(chRead==EM_BCC){
 					state++;
-					printf("BCC received");
+					printf("BCC received\n");
 				}
 				else if(chRead==F){
 					state=1;
-					printf("1st Flag received");
+					printf("1st Flag received\n");
 				}
 				else{
 					state=0;
-					printf("Back to state 0");
+					printf("Back to state 0\n");
 				}
 				break;
 			case 4:
 				if(chRead==F){
 					state++;
-					printf("Last Flag received");
+					printf("Last Flag received\n");
 				}
 				else{
 					state=0;
-					printf("Back to state 0");
+					printf("Back to state 0\n");
 				}
 				break;
 		} 
+	}
 		
 	printf("SET received\n");
-	unsigned char UA[5];
+	unsigned char ua[5];
+	ua[0]=F;
+	ua[1]=REC_ADDR;
+	ua[2]=REC_CONTROL;
+	ua[3]=REC_BCC;
+	ua[4]=F;
+	write(fd,ua,5);
+	printf("UA sent\n");
 	sleep(2);
-
-	int i=0;
 	
-
-
-    while (STOP==FALSE) { 
+   /* while (STOP==FALSE) { 
 	if(i==4) STOP=TRUE;      
       res = read(fd,buf,1);               
 	SET[i]=buf[0];
 	i++;
-    }
+    }*/
 
-	printf("Values read from SET: %X, %X, %X, %X, %X",SET[0],SET[1],SET[2],SET[3],SET[4]);
-
-	
-	
-
-	/*UA[0]=F;
-	UA[0]=A;
-	UA[0]=C_SET;
-	UA[0]=SET[1]^SET[2];
-	UA[0]=F;
-*/
-		
-
-  /* 
-    O ciclo WHILE deve ser alterado de modo a respeitar o indicado no gui�o 
-  */
-
-
+	//printf("Values read from SET: %X, %X, %X, %X, %X",SET[0],SET[1],SET[2],SET[3],SET[4]);
 
     tcsetattr(fd,TCSANOW,&oldtio);
     close(fd);
