@@ -14,12 +14,14 @@
 #define FALSE 0
 #define TRUE 1
 
-#define A 0x03
 #define F 0x7e
-#define C_SET 0x07
-/*#define C_UA 
-#define BCC 
-*/
+#define EM_ADDR 0x03
+#define REC_ADDR 0x01
+#define EM_CONTROL 0x03
+#define REC_CONTROL 0x07
+#define EM_BCC EM_ADDR^EM_CONTROL
+#define REC_BCC REC_ADDR^REC_CONTROL
+
 
 volatile int STOP=FALSE;
 
@@ -80,7 +82,71 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
-	unsigned char SET[5];
+
+	//STATE MACHINE
+	int state=0;	
+	char chRead;
+	unsigned char set[5];
+	while(state<5){
+		read(fd,&chRead,1);
+		switch(state){
+			case 0:
+				if(chRead==F)
+					state++;
+				printf("1st Flag received");
+				break;
+			case 1:
+				if(chRead==EM_ADDR){
+					state++;
+					printf("ADDRESS received");
+				}
+				else if(chRead!=F){
+					state=0;
+					printf("Back to state 0");
+				}					
+				break;
+			case 2:
+				if(chRead==EM_CONTROL){
+					state++;
+					printf("Control received");	
+				}
+				else if(chRead==F){
+					state--;
+					printf("1st Flag received");
+				}
+				else{
+					state=0;
+					printf("Back to state 0");
+				}
+				
+				break;
+			case 3:
+				if(chRead==EM_BCC){
+					state++;
+					printf("BCC received");
+				}
+				else if(chRead==F){
+					state=1;
+					printf("1st Flag received");
+				}
+				else{
+					state=0;
+					printf("Back to state 0");
+				}
+				break;
+			case 4:
+				if(chRead==F){
+					state++;
+					printf("Last Flag received");
+				}
+				else{
+					state=0;
+					printf("Back to state 0");
+				}
+				break;
+		} 
+		
+	printf("SET received\n");
 	unsigned char UA[5];
 	sleep(2);
 
